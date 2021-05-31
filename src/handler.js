@@ -1,20 +1,21 @@
-const { nanoid } = require('nanoid')
-const notes = require('./notes')
+import { nanoid } from 'nanoid'
+import notes from './books'
 
-const addNoteHandler = (request, h) => {
-  const { title, tags, body } = request.payload
+export const addBookHandler = (request, h) => {
+  const { name, year, author, summary, publisher, pageCount, readPage, reading } = request.payload
 
   const id = nanoid(16)
-  const createdAt = new Date().toISOString()
-  const updatedAt = createdAt
+  const insertedAt = new Date().toISOString()
+  const updatedAt = insertedAt
+  const finished = pageCount === readPage
 
-  const newNote = {
-    title, tags, body, id, createdAt, updatedAt
+  const books = {
+    id, name, year, author, summary, publisher, pageCount, readPage, finished, reading, insertedAt, updatedAt
   }
 
-  notes.push(newNote)
+  notes.push(books)
 
-  const isSuccess = notes.filter((note) => note.id === id).length > 0
+  const isSuccess = notes.filter((books) => books.id === id).length > 0
 
   if (isSuccess) {
     const response = h.response({
@@ -35,14 +36,14 @@ const addNoteHandler = (request, h) => {
   return response
 }
 
-const getAllNotesHandler = () => ({
+export const getAllBooksHandler = () => ({
   status: 'success',
   data: {
     notes
   }
 })
 
-const getNoteByIdHandler = (request, h) => {
+export const getBookByIdHandler = (request, h) => {
   const { id } = request.params
 
   const note = notes.filter((n) => n.id === id)[0]
@@ -64,7 +65,7 @@ const getNoteByIdHandler = (request, h) => {
   return response
 }
 
-const editNoteByIdHandler = (request, h) => {
+export const editBookByIdHandler = (request, h) => {
   const { id } = request.params
 
   const { title, tags, body } = request.payload
@@ -96,7 +97,7 @@ const editNoteByIdHandler = (request, h) => {
   response.code(404)
   return response
 }
-const deleteNoteByIdHandler = (request, h) => {
+export const deleteBookByIdHandler = (request, h) => {
   const { id } = request.params
 
   const index = notes.findIndex((note) => note.id === id)
@@ -119,10 +120,10 @@ const deleteNoteByIdHandler = (request, h) => {
   return response
 }
 
-module.exports = {
-  addNoteHandler,
-  getAllNotesHandler,
-  getNoteByIdHandler,
-  editNoteByIdHandler,
-  deleteNoteByIdHandler
+export default {
+  addBookHandler,
+  deleteBookByIdHandler,
+  editBookByIdHandler,
+  getAllBooksHandler,
+  getBookByIdHandler
 }

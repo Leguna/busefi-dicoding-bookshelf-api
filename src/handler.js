@@ -32,7 +32,6 @@ const addBookHandler = (request, h) => {
     insertedAt,
     updatedAt
   }
-
   if (name === undefined) {
     return h.response({
       status: 'fail',
@@ -65,22 +64,29 @@ const addBookHandler = (request, h) => {
   }).code(500)
 }
 
-const getAllBooksHandler = () => {
-  books.map(({
-    id,
+const getAllBooksHandler = (request) => {
+  const {
     name,
-    publisher
-  }) => {
-    return {
-      id,
-      name,
-      publisher
-    }
-  })
+    reading,
+    finished
+  } = request.query
+
+  let booksFiltered = books
+
+  if (name !== undefined) {
+    booksFiltered = booksFiltered.filter(value => value.name.toLowerCase().includes(name.toLowerCase()))
+  }
+  if (reading !== undefined) {
+    booksFiltered = booksFiltered.filter(value => value.reading === (reading === '1'))
+  }
+  if (finished !== undefined) {
+    booksFiltered = booksFiltered.filter(value => value.finished === (finished === '1'))
+  }
+
   return {
     status: 'success',
     data: {
-      books: books.map(({
+      books: booksFiltered.map(({
         id,
         name,
         publisher
@@ -96,9 +102,8 @@ const getAllBooksHandler = () => {
 }
 
 const getBookByIdHandler = (request, h) => {
-  const { bookId } = request.params
-
-  const book = books.filter((n) => n.id === bookId)[0]
+  const { id } = request.params
+  const book = books.filter((n) => n.id === id)[0]
 
   if (book !== undefined) {
     return h.response({
@@ -116,7 +121,7 @@ const getBookByIdHandler = (request, h) => {
 }
 
 const editBookByIdHandler = (request, h) => {
-  const { bookId } = request.params
+  const { id } = request.params
 
   const {
     name,
@@ -143,9 +148,8 @@ const editBookByIdHandler = (request, h) => {
 
   const updatedAt = new Date().toISOString()
 
-  const index = books.findIndex((book) => book.id === bookId)
+  const index = books.findIndex((book) => book.id === id)
 
-  console.log(bookId)
   if (index !== -1) {
     books[index] = {
       ...books[index],
@@ -173,26 +177,22 @@ const editBookByIdHandler = (request, h) => {
 }
 
 const deleteBookByIdHandler = (request, h) => {
-  const { bookId } = request.params
+  const { id } = request.params
 
-  const index = books.findIndex((book) => book.id === bookId)
+  const index = books.findIndex((book) => book.id === id)
 
   if (index !== -1) {
     books.splice(index, 1)
-    const response = h.response({
+    return h.response({
       status: 'success',
-      message: 'Catatan berhasil dihapus'
-    })
-    response.code(200)
-    return response
+      message: 'Buku berhasil dihapus'
+    }).code(200)
   }
 
-  const response = h.response({
+  return h.response({
     status: 'fail',
-    message: 'Catatan gagal dihapus. Id tidak ditemukan'
-  })
-  response.code(404)
-  return response
+    message: 'Buku gagal dihapus. Id tidak ditemukan'
+  }).code(404)
 }
 
 module.exports = {

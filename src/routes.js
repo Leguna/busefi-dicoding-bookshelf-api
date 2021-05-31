@@ -1,10 +1,10 @@
-import {
+const {
   addBookHandler,
   deleteBookByIdHandler,
   editBookByIdHandler,
   getAllBooksHandler,
   getBookByIdHandler
-} from './handler'
+} = require('./handler')
 
 const routes = [
   {
@@ -19,7 +19,7 @@ const routes = [
   },
   {
     method: 'GET',
-    path: '/books/{id}',
+    path: '/books/{bookId}',
     handler: getBookByIdHandler
   },
   {
@@ -34,4 +34,4 @@ const routes = [
   }
 ]
 
-export default routes
+module.exports = routes
